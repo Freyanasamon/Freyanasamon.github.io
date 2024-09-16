@@ -57,7 +57,7 @@
 
     <section>
         <h2>About This Page</h2>
-        <p>This is a simple index page created with HTML and basic CSS styling. You can customize it further by adding more content or functionality.</p>
+        <p> WELCOME TO FREYA WEBSITE <3 </p>
     </section>
 
     <footer>
