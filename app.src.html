@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ABB Signal Tower</title>
+<style>
+:root{--bg:#0b1016;--panel:#121923;--panel2:#18212d;--line:#243040;--tx:#e6ebf1;--mut:#92a0b2;
+--good:#2ecc8f;--base:#4c9bff;--watch:#ffc233;--risk:#ff4d57;--brand:#ff000f}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 system-ui,Segoe UI,Roboto,sans-serif}
+.app{display:grid;grid-template-columns:210px 1fr;min-height:100vh}
+nav{background:#0e141c;border-right:1px solid var(--line);padding:16px 10px;position:sticky;top:0;height:100vh;overflow:auto}
+.brand{font-weight:800;letter-spacing:.4px;padding:2px 8px 16px}.brand b{color:var(--brand)}.brand small{display:block;color:var(--mut);font-weight:400;font-size:12px}
+nav a{display:block;padding:9px 12px;border-radius:8px;color:var(--mut);cursor:pointer;margin-bottom:2px}
+nav a:hover{background:var(--panel);color:var(--tx)}nav a.on{background:var(--panel2);color:#fff;font-weight:600}
+.note{margin:16px 8px 0;font-size:12px;color:var(--mut);border-top:1px solid var(--line);padding-top:12px}
+main{padding:20px 26px 48px;min-width:0;max-width:1240px}
+h1{font-size:24px;margin:0 0 4px}.sub{color:var(--mut);margin-bottom:18px;max-width:760px}
+h2{font-size:17px;margin:26px 0 10px}
+.grid{display:grid;gap:14px}.g4{grid-template-columns:repeat(4,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g2{grid-template-columns:1fr 1fr}
+@media(max-width:1000px){.app{grid-template-columns:1fr}nav{position:static;height:auto;padding:8px}.brand{padding:2px 6px 6px}.note{display:none}#menu{display:flex;overflow-x:auto;gap:4px}#menu a{white-space:nowrap;margin:0}.g4,.g3{grid-template-columns:1fr 1fr}}
+@media(max-width:640px){.g4,.g3,.g2{grid-template-columns:1fr}main{padding:14px 12px}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;min-width:0;overflow-x:auto}.hbar .nm{flex:none}@media(max-width:640px){.hbar .nm{width:84px}.hbar .vv{width:48px}th,td{padding:6px 4px;font-size:13px}}
+.card h3{margin:0 0 8px;font-size:12px;text-transform:uppercase;letter-spacing:.8px;color:var(--mut);font-weight:600}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12.5px;color:var(--mut);margin-bottom:14px;align-items:center}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+.good{color:var(--good)}.base{color:var(--base)}.watch{color:var(--watch)}.risk{color:var(--risk)}.mut{color:var(--mut)}
+.bg-good{background:var(--good)}.bg-base{background:var(--base)}.bg-watch{background:var(--watch)}.bg-risk{background:var(--risk)}
+.take{border-left:4px solid var(--c);padding:6px 0 6px 14px;margin:10px 0}.take b{display:block;font-size:16px}.take span{color:var(--mut)}
+.tile .l{color:var(--mut);font-size:13px}.tile .v{font-size:32px;font-weight:700;line-height:1.15;margin:4px 0}.tile .d{color:var(--mut);font-size:13px}
+.tile{border-top:3px solid var(--c)}
+.stack{display:flex;height:34px;border-radius:8px;overflow:hidden;margin:8px 0 6px}.stack div{display:flex;align-items:center;justify-content:center;font-weight:700;color:#06101a;font-size:14px}
+.tag{display:inline-block;padding:2px 10px;border-radius:99px;font-size:12px;font-weight:600;border:1px solid var(--c,var(--line));color:var(--c,var(--mut));white-space:nowrap}
+.tag.solid{background:var(--c);color:#06101a}
+ul.b{margin:6px 0 0;padding-left:20px}ul.b li{margin:4px 0}
+.bar{height:10px;background:#1d2836;border-radius:5px;position:relative;overflow:hidden}.bar i{position:absolute;left:0;top:0;bottom:0;border-radius:5px}
+.row{display:flex;align-items:center;gap:10px}.sp{flex:1}
+table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:8px;border-bottom:1px solid var(--line);vertical-align:top}th{color:var(--mut);font-weight:600;font-size:12.5px}
+tr.click:hover{background:var(--panel2);cursor:pointer}
+button,select{background:var(--panel2);color:var(--tx);border:1px solid var(--line);border-radius:8px;padding:8px 14px;font:inherit;cursor:pointer}
+button.primary{background:var(--brand);border-color:var(--brand);color:#fff;font-weight:600}button:hover{filter:brightness(1.15)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}.seg button{border:0;border-radius:0;background:transparent;padding:9px 18px}.seg button.on{background:var(--base);color:#06101a;font-weight:700}
+details{margin-top:10px}summary{cursor:pointer;color:var(--mut);font-size:13.5px}
+input[type=range]{width:100%;accent-color:var(--base)}
+.num{font-size:28px;font-weight:700}
+.log div{padding:8px 12px;border-left:3px solid var(--good);margin-bottom:6px;background:var(--panel2);border-radius:0 8px 8px 0;animation:in .4s}.log b{color:var(--base)}
+@keyframes in{from{opacity:0;transform:translateX(-6px)}to{opacity:1}}
+svg text{fill:var(--mut);font-size:11px}
+.pill{font-size:11.5px;padding:2px 8px;border-radius:6px;background:#0e141c;border:1px solid var(--line);margin-right:6px;color:var(--mut)}
+.hbar{display:flex;align-items:center;gap:10px;margin:7px 0}.hbar .nm{width:100px;font-size:14px}.hbar .tr{flex:1;position:relative;height:22px;background:#17202b;border-radius:6px}.hbar .tr i{position:absolute;top:0;bottom:0;border-radius:6px}.hbar .tr .z{position:absolute;left:30%;top:-2px;bottom:-2px;width:1px;background:#4a5a70}.hbar .vv{width:56px;text-align:right;font-weight:700}
+</style>
+</head>
+<body>
+<div class="app">
+<nav>
+  <div class="brand">ABB <b>SIGNAL TOWER</b><small>Spot demand shifts early</small></div>
+  <div id="menu"></div>
+  <div class="note" style="margin-top:12px"><b>Your own data</b><br>
+    <button onclick="document.getElementById('custfile').click()">Load data file (JSON)</button>
+    <button onclick="downloadTemplate()">Template</button>
+    <button onclick="resetData()">Reset</button>
+    <input type="file" id="custfile" accept=".json,application/json" style="display:none" onchange="onCustomFile(event)">
+    <div id="custmsg" style="margin-top:6px;white-space:pre-wrap"></div>
+  </div>
+  <div class="note">Demo with <b>illustrative, anonymised data</b>, not real company or ABB figures. All numbers recalculate live.</div>
+</nav>
+<main>
+  <div class="legend"><span><i class="dot bg-good"></i>Positive</span><span><i class="dot bg-base"></i>Expected / base case</span><span><i class="dot bg-watch"></i>Watch list</span><span><i class="dot bg-risk"></i>Risk</span></div>
+  <div id="page"></div>
+</main>
+</div>
+<script>/*ENGINE*/</script>
+<script>
+const E = Engine, $ = (s, r = document) => r.querySelector(s);
+const pct = (x) => Math.round(x * 100);
+const sgn = (x) => (x > 0 ? "+" : "") + x;
+const TONE = { HG: "good", BASE: "base", RS: "watch", SD: "risk" };
+const CV = { good: "var(--good)", base: "var(--base)", watch: "var(--watch)", risk: "var(--risk)" };
+const sc = (k) => CV[TONE[k]];
+const chg = (x, suf = "%") => `<span class="${x > 0 ? "good" : x < 0 ? "risk" : "mut"}">${sgn(x)}${suf}</span>`;
+const bullets = (a, cls = "") => `<ul class="b ${cls}">${a.map(x => `<li>${x}</li>`).join("")}</ul>`;
+function buildR() {
+  const r = E.runPipeline();
+  r.expl = E.explainProbability(r.post, r.pBefore);
+  r.outlook = E.expectedOutlook(r.post.p);
+  r.regions = E.regionScorecard(r.post.p, r.scored);
+  return r;
+}
+let R = buildR();
+const SIGDIR = (s) => s.pol > 0 ? ["Good news", "good"] : ["Warning", "risk"];
+let picked = null;
+const PAGES = [["exec", "Summary"], ["outlook", "Outlook: 6 / 18 / 36 months"], ["scen", "Scenarios"], ["geo", "Regions"], ["dec", "Decisions"], ["radar", "Signals"], ["supply", "Supply risks"], ["hub", "Data & sources"], ["demo", "▶ Live demo"]];
+let cur = (location.hash || "#exec").slice(1);
+
+function menu() { $("#menu").innerHTML = PAGES.map(([k, n]) => `<a class="${k === cur ? "on" : ""}" onclick="go('${k}')">${n}</a>`).join(""); }
+function go(k) { cur = k; location.hash = k; menu(); render(); window.scrollTo(0, 0); }
+const intro = (t, s) => `<h1>${t}</h1><div class="sub">${s}</div>`;
+
+/* ---------- shared widgets ---------- */
+function stack(p, before) {
+  return `<div class="stack">${E.SCEN.map(k => `<div style="width:${pct(p[k])}%;background:${sc(k)}">${pct(p[k]) >= 6 ? pct(p[k]) + "%" : ""}</div>`).join("")}</div>
+  <div class="legend" style="margin:0">${E.SCEN.map(k => `<span><i class="dot" style="background:${sc(k)}"></i>${E.SCEN_NAME[k]} ${pct(p[k])}%${before ? ` <span class="mut">(${sgn(pct(p[k] - before[k]))} pts)</span>` : ""}</span>`).join("")}</div>`;
+}
+function probBars(p, before) {
+  return E.SCEN.map(k => `<div style="margin:10px 0"><div class="row"><span style="color:${sc(k)}">●</span><b>${E.SCEN_NAME[k]}</b><span class="sp"></span>${before ? `<span class="mut">${pct(before[k])}% →</span>` : ""}<b>${pct(p[k])}%</b></div>
+  <div class="bar"><i style="width:${pct(p[k])}%;background:${sc(k)}"></i></div></div>`).join("");
+}
+function hbars(rows, max) {
+  const m = max || Math.max(...rows.map(r => Math.abs(r.v)), 1), zero = Math.min(...rows.map(r => r.v)) < 0 ? 30 : 0;
+  return rows.map(r => { const w = Math.abs(r.v) / m * (100 - zero) * 0.96; const left = r.v >= 0 ? zero : zero - w; const c = r.v < 0 ? "var(--risk)" : r.c || "var(--good)";
+    return `<div class="hbar"><div class="nm">${r.name}</div><div class="tr">${zero ? `<div class="z"></div>` : ""}<i style="left:${left}%;width:${w}%;background:${c}"></i></div><div class="vv" style="color:${c}">${sgn(r.v)}%</div></div>`; }).join("");
+}
+function sigDetail(s) {
+  if (!s) return `<div class="mut">Click a dot or a row to see why a signal matters.</div>`;
+  const [d, dc] = SIGDIR(s);
+  const rows = [["How big is the move", s.S], ["How sure are we", Math.round(s.confAdj)], ["How trusted is the source", s.rel], ["How early does it warn us", Math.round(s.leadScore)], ["How much it matters to ABB", s.abb], ["How uncertain it is", s.U]];
+  return `<div class="row"><span class="tag solid" style="--c:${CV[dc]}">${d}</span><span class="tag" style="--c:${s.tier === "Act" ? CV.risk : s.tier === "Watch" ? CV.watch : "var(--line)"}">${E.PLAIN[s.tier]}</span><span class="sp"></span><span class="num">${s.priority}</span></div>
+  <div style="margin:8px 0;font-size:16px"><b>${E.shortName(s.id)}</b></div><div class="mut" style="margin-bottom:8px">${s.evidence}</div>
+  ${bullets([`Affects ABB: ${s.products}`, `Checked by ${s.corr} independent source${s.corr === 1 ? "" : "s"}: ${s.validation.status.toLowerCase()}`, s.counterPenalty ? `Confidence cut by ${s.counterPenalty}% because of: ${s.challengedBy.map(E.shortName).join("; ").toLowerCase()}` : "No strong contradicting evidence"])}
+  <details><summary>Show the maths</summary>${rows.map(([l, v]) => `<div class="row" style="margin:5px 0;font-size:13px"><span style="width:190px">${l}</span><div class="bar sp"><i style="width:${v}%;background:var(--base)"></i></div><b style="width:28px;text-align:right">${v}</b></div>`).join("")}</details>`;
+}
+function pick(id) { picked = id; if (cur !== "radar") go("radar"); else render(); }
+
+/* ---------- pages ---------- */
+const P = {};
+
+P.exec = () => {
+  const i = R.impact, ol = R.outlook, best = R.regions[0], risk = R.scored.filter(s => s.pol < 0 && s.tier !== "Rejected").sort((a, b) => b.priority - a.priority)[0];
+  const top = E.SCEN.slice().sort((a, b) => R.post.p[b] - R.post.p[a])[0];
+  return `${intro("Executive summary", "What is changing in AI data-centre demand, how likely each future is, and what ABB should do.")}
+  <div class="card"><h3>The 5 things to know</h3>${E.takeaways(R).map(t => `<div class="take" style="--c:${CV[t.tone]}"><b>${t.head}</b><span>${t.body}</span></div>`).join("")}</div>
+  <div class="grid g4" style="margin-top:14px">
+    <div class="card tile" style="--c:${CV.good}"><div class="l">Orders in 18 months</div><div class="v good">${sgn(ol.m18.growth)}%</div><div class="d">vs 2026, expected</div></div>
+    <div class="card tile" style="--c:${CV.base}"><div class="l">Factory capacity used</div><div class="v base">${ol.m18.util}%</div><div class="d">${ol.m18.util > 100 ? "Not enough capacity" : "Some room; stay flexible"}</div></div>
+    <div class="card tile" style="--c:${CV.good}"><div class="l">Best region</div><div class="v good">${best.region}</div><div class="d">${sgn(best.change)}% orders</div></div>
+    <div class="card tile" style="--c:${CV.risk}"><div class="l">Biggest risk</div><div class="v risk" style="font-size:19px;margin:8px 0">${E.shortName(risk.id)}</div><div class="d">Delays projects more than it cancels them</div></div>
+  </div>
+  <div class="grid g2" style="margin-top:14px">
+    <div class="card"><h3>How likely is each future?</h3>${stack(R.post.p, R.pBefore)}
+      <p class="mut" style="margin:10px 0 0">Most likely: <b style="color:${sc(top)}">${E.SCEN_NAME[top]}</b>. ${E.SCEN_CARDS[top].plain}</p>
+      <p><a style="color:var(--base);cursor:pointer" onclick="go('scen')">See why each probability exists →</a></p></div>
+    <div class="card"><h3>What to do now</h3>${bullets([
+      "<b>Factories:</b> add flexible capacity in stages. Do not commit to a full expansion yet.",
+      "<b>Buying:</b> lock in copper, steel and transformer parts for about 30-50% of next year's needs.",
+      "<b>Sales:</b> build named-account plans for the top 3 Nordic projects.",
+      "<b>Review:</b> check the warning triggers monthly (see Decisions)."])}
+      <p><a style="color:var(--base);cursor:pointer" onclick="go('dec')">See all decisions →</a></p></div>
+  </div>
+  <details class="card" style="margin-top:14px"><summary>How to read this dashboard</summary>${bullets([
+    "<b>Signal</b> = an early clue about future demand (for example, requests to connect to the power grid).",
+    "<b>Scenario</b> = one possible future. The four probabilities add up to 100%.",
+    "<b>Orders / revenue</b> = % change versus 2026. Revenue follows orders by several months.",
+    "<b>Capacity used</b> = share of ABB factory capacity in use. Above 100% means orders exceed what can be built.",
+    "<b>Colours:</b> green = positive, blue = expected, yellow = watch, red = risk."])}</details>`;
+};
+
+let hz = "m6", hv = "W";
+P.outlook = () => {
+  const p = R.post.p, top = E.SCEN.slice().sort((a, b) => p[b] - p[a])[0], k = hv === "W" ? top : hv, H = E.HORIZONS[k], ol = R.outlook;
+  const tile = (l, v, d, c) => `<div class="card tile" style="--c:${CV[c]}"><div class="l">${l}</div><div class="v ${c}">${v}</div><div class="d">${d}</div></div>`;
+  const rng = (f) => { const v = E.SCEN.map(s => f(s)); return `<div class="mut" style="font-size:12.5px">Range across scenarios: ${sgn(Math.min(...v))}% to ${sgn(Math.max(...v))}%</div>`; };
+  const rk = (s) => E.SCEN.slice().sort((a, b) => 0);
+  const regs = hv === "W" ? R.regions.map(r => ({ r: r.region, v: r.change })) : E.REGIONS.map(r => ({ r, v: E.REG_IMPACT[k][r] })).sort((a, b) => b.v - a.v);
+  const win = regs.slice(0, 2), lose = regs.slice(-2).reverse();
+  let body = "";
+  if (hz === "m6") {
+    const o = hv === "W" ? ol.m6 : H.m6;
+    body = `<div class="grid g3">${tile("Expected orders", sgn(o.orders) + "%", "vs 2026" , o.orders >= 0 ? "good" : "risk")}${tile("Revenue impact", sgn(o.revenue) + "%", "Revenue lags orders", o.revenue >= 0 ? "good" : "risk")}${tile("Capacity used", o.util + "%", o.util > 100 ? "Over capacity" : "Within capacity", o.util > 100 ? "watch" : "base")}</div>
+    <div class="grid g2" style="margin-top:14px"><div class="card"><h3>Key risks</h3>${bullets(H.m6.risks, "risk")}</div><div class="card"><h3>Key catalysts</h3>${bullets(H.m6.catalysts, "good")}</div></div>`;
+  } else if (hz === "m18") {
+    const o = hv === "W" ? ol.m18 : H.m18;
+    body = `<div class="grid g3">${tile("Expected growth", sgn(hv === "W" ? o.growth : H.m18.growth) + "%", "orders by month 18, vs 2026", (o.growth) >= 0 ? "good" : "risk")}${tile("Profit impact", sgn(o.margin) + " pts", "operating margin", o.margin >= 0 ? "good" : "risk")}${tile("Revenue", sgn(o.revenue) + "%", "vs 2026", o.revenue >= 0 ? "good" : "risk")}</div>
+    <div class="grid g2" style="margin-top:14px"><div class="card"><h3>Market share</h3><div style="font-size:16px">${H.m18.share}</div><h3 style="margin-top:16px">Supply chain outlook</h3><div style="font-size:16px">${H.m18.supply}</div></div>
+    <div class="card"><h3>Regional winners and losers</h3><div class="good"><b>Winners</b></div>${bullets(win.map(w => `${w.r} (${sgn(w.v)}%)`), "good")}<div class="watch" style="margin-top:8px"><b>Lagging</b></div>${bullets(lose.map(w => `${w.r} (${sgn(w.v)}%)`))}</div></div>`;
+  } else {
+    const o = hv === "W" ? ol.m36 : H.m36;
+    body = `<div class="card tile" style="--c:${CV[TONE[k]]}"><div class="l">Long-term picture</div><div class="v" style="font-size:20px">${H.m36.story}</div><div class="d">Orders ${sgn(o.orders)}% · revenue ${sgn(o.revenue)}% · margin ${sgn(o.margin)} pts, vs 2026</div></div>
+    <div class="grid g2" style="margin-top:14px"><div class="card"><h3>What drives growth</h3>${bullets(H.m36.drivers, "good")}</div><div class="card"><h3>What could disrupt it</h3>${bullets(H.m36.disruption, "risk")}</div>
+    <div class="card"><h3>Investment outlook</h3><div style="font-size:16px">${H.m36.capex}</div></div><div class="card"><h3>Strategic opportunities</h3>${bullets(H.m36.opportunities, "good")}</div></div>`;
+  }
+  const nm = hv === "W" ? `Probability-weighted view (text from the most likely scenario: ${E.SCEN_NAME[top]})` : E.SCEN_NAME[k];
+  return `${intro("Outlook", "What the next 6, 18 and 36 months look like for ABB, blended across all scenarios or for one scenario.")}
+  <div class="row" style="flex-wrap:wrap;margin-bottom:14px"><div class="seg">${[["m6", "Next 6 months"], ["m18", "Next 18 months"], ["m36", "Next 36 months"]].map(([a, n]) => `<button class="${hz === a ? "on" : ""}" onclick="hz='${a}';render()">${n}</button>`).join("")}</div>
+  <select onchange="hv=this.value;render()"><option value="W" ${hv === "W" ? "selected" : ""}>Most likely (weighted by probability)</option>${E.SCEN.map(s => `<option value="${s}" ${hv === s ? "selected" : ""}>${E.SCEN_NAME[s]}</option>`).join("")}</select></div>
+  <div class="mut" style="margin-bottom:10px">Showing: <b style="color:var(--tx)">${nm}</b></div>${body}
+  <p class="mut" style="font-size:12.5px;margin-top:14px">Figures are illustrative planning assumptions, to be replaced with ABB finance data.</p>`;
+};
+
+let sw = { warn: 1, strict: 1, off: {} };
+P.scen = () => {
+  const imp = (k) => { const h = E.HORIZONS[k]; return [[h.m6.orders, h.m6.revenue, "–"], [h.m18.growth, h.m18.revenue, h.m18.margin], [h.m36.orders, h.m36.revenue, h.m36.margin]]; };
+  const card = (k) => { const c = E.SCEN_CARDS[k], x = R.expl[k], t = imp(k);
+    return `<div class="card" style="border-top:4px solid ${sc(k)}">
+    <div class="row"><b style="font-size:19px;color:${sc(k)}">${E.SCEN_NAME[k]}</b><span class="sp"></span><span class="num" style="color:${sc(k)}">${pct(R.post.p[k])}%</span></div>
+    <div style="font-size:16px;margin:6px 0"><b>${c.oneLine}</b></div><div class="mut">${c.plain}</div>
+    <h3 style="margin-top:14px">Why ${pct(R.post.p[k])}%?${x.delta ? ` <span class="${x.delta > 0 ? "good" : "risk"}">(${sgn(x.delta)} pts since new data)</span>` : ""}</h3>
+    ${x.up.length ? `<div class="good small"><b>Pushing it up</b></div>${bullets(x.up.map(u => u.name))}` : ""}${x.down.length ? `<div class="risk"><b style="font-size:13px">Holding it back</b></div>${bullets(x.down.map(u => u.name))}` : ""}
+    <h3 style="margin-top:14px">Key assumptions</h3>${bullets(c.assumptions)}
+    <h3 style="margin-top:14px">Financial impact vs 2026</h3>
+    <table><tr><th></th><th>6 months</th><th>18 months</th><th>36 months</th></tr>
+    <tr><td>Orders</td>${t.map(r => `<td>${chg(r[0])}</td>`).join("")}</tr><tr><td>Revenue</td>${t.map(r => `<td>${chg(r[1])}</td>`).join("")}</tr><tr><td>Profit margin</td>${t.map(r => `<td>${r[2] === "–" ? "–" : chg(r[2], " pts")}</td>`).join("")}</tr></table>
+    <div class="grid g2" style="margin-top:12px"><div><h3 class="good">Winners</h3>${bullets(c.winners)}</div><div><h3 class="risk">Losers</h3>${bullets(c.losers)}</div></div>
+    <h3 style="margin-top:12px">Signals to monitor</h3><div>${c.watch.map(id => `<span class="pill" style="cursor:pointer" onclick="pick('${id}')">${E.shortName(id)}</span>`).join(" ")}</div></div>`; };
+  // what-if
+  const scd = E.scoreAll(E.SIGNALS, { counterStrictness: sw.strict }), post = E.posterior(scd, { warningWeight: sw.warn, include: s => !sw.off[s.id] });
+  return `${intro("Scenarios", "Four possible futures. Each card says what it means, how likely it is, why, and what it does to ABB.")}
+  <div class="card"><h3>Probabilities</h3>${stack(R.post.p, R.pBefore)}</div>
+  <div class="grid g2" style="margin-top:14px">${E.SCEN.map(card).join("")}</div>
+  <details class="card" style="margin-top:14px" ${sw.open ? "open" : ""} ontoggle="sw.open=this.open"><summary><b>What if…?</b> Test how the probabilities change</summary>
+    <div class="grid g2" style="margin-top:12px"><div>
+      <div>How much to trust warning signs: <b>${sw.warn.toFixed(1)}×</b></div><input type="range" min="0" max="2.5" step=".1" value="${sw.warn}" oninput="sw.warn=+this.value;render()">
+      <div style="margin-top:10px">How hard to challenge good news: <b>${sw.strict.toFixed(1)}×</b></div><input type="range" min="0" max="2.5" step=".1" value="${sw.strict}" oninput="sw.strict=+this.value;render()">
+      <div class="mut" style="margin:10px 0 4px">Click a signal to switch it off:</div>${E.SIGNALS.filter(s => s.nature !== "false_positive").map(s => `<span class="pill" style="cursor:pointer;${sw.off[s.id] ? "opacity:.35;text-decoration:line-through" : ""}" onclick="sw.off['${s.id}']=!sw.off['${s.id}'];render()">${E.shortName(s.id)}</span>`).join(" ")}
+      <p><button onclick="sw={warn:1,strict:1,off:{},open:true};render()">Reset</button></p></div>
+    <div>${probBars(post.p, R.pBefore)}</div></div></details>`;
+};
+
+let geoScn = "EXP";
+P.geo = () => {
+  const val = (r) => geoScn === "EXP" ? R.outlook && E.expectedImpact(R.post.p).regions[r] : E.REG_IMPACT[geoScn][r];
+  const rows = E.REGIONS.map(r => ({ name: r, v: val(r) })).sort((a, b) => b.v - a.v);
+  const avg = geoScn === "EXP" ? R.impact.orderGrowth : E.SCEN_INFO[geoScn].orders;
+  const vcol = { Winner: "good", Steady: "base", Lagging: "watch" };
+  return `${intro("Regions", "Where ABB demand is growing and where it is lagging. Orders vs 2026 over the next 18 months.")}
+  <div class="row" style="margin-bottom:14px"><span class="mut">Show:</span><select onchange="geoScn=this.value;render()"><option value="EXP" ${geoScn === "EXP" ? "selected" : ""}>Most likely (weighted)</option>${E.SCEN.map(k => `<option value="${k}" ${geoScn === k ? "selected" : ""}>${E.SCEN_NAME[k]}</option>`).join("")}</select></div>
+  <div class="card"><h3>Order growth by region (average: ${sgn(avg)}%)</h3>${hbars(rows, 70)}</div>
+  <h2>Region scorecards</h2>
+  <div class="grid g3">${R.regions.map(r => `<div class="card" style="border-top:3px solid ${CV[r.change < 0 ? "risk" : vcol[r.verdict]]}"><div class="row"><b style="font-size:17px">${r.region}</b><span class="sp"></span><span class="tag" style="--c:${CV[vcol[r.verdict]]}">${r.verdict}</span></div>
+    <div class="num" style="margin:6px 0">${chg(r.change)}</div><div class="mut" style="font-size:13px">Early-warning strength: ${r.momentum}/100</div><div class="bar" style="margin:4px 0 10px"><i style="width:${r.momentum}%;background:var(--base)"></i></div>
+    ${bullets([`<b>Held back by:</b> ${r.limit}`, `<b>ABB move:</b> ${r.action}`])}</div>`).join("")}</div>
+  <h2>Compare across scenarios</h2>
+  <div class="card"><table><tr><th>Region</th>${E.SCEN.map(k => `<th style="color:${sc(k)}">${E.SCEN_NAME[k]}</th>`).join("")}</tr>
+  ${E.REGIONS.map(r => `<tr><td><b>${r}</b></td>${E.SCEN.map(k => { const v = E.REG_IMPACT[k][r]; const c = v < 0 ? CV.risk : CV.good; return `<td style="background:color-mix(in srgb,${c} ${Math.min(55, Math.abs(v) * 0.9)}%,transparent);font-weight:600">${sgn(v)}%</td>`; }).join("")}</tr>`).join("")}</table></div>`;
+};
+
+P.dec = () => {
+  const D = R.decisions, lab = { Manufacturing: "Factories", Procurement: "Buying", "Supply chain": "Supply chain", Strategy: "Strategy" };
+  const nice = (o) => o.split(" (")[0];
+  return `${intro("Decisions", "One recommended move for each area. It is chosen to work reasonably well whichever future happens.")}
+  <div class="grid g2">${Object.keys(D).map(dom => { const r = D[dom][0]; return `<div class="card" style="border-top:3px solid var(--good)"><div class="row"><h3 style="margin:0">${lab[dom]}</h3><span class="sp"></span><span class="tag solid" style="--c:${CV.good}">Recommended</span></div>
+    <div style="font-size:18px;font-weight:600;margin:8px 0">${nice(r.opt)}</div>
+    ${bullets([`If growth surges: ${chg(r.pay.HG, " pts")}`, `If the market slows: ${chg(r.pay.SD, " pts")}`, `Expected overall: ${chg(r.ev, " pts")}`])}
+    <details><summary>Compare with other options</summary><table><tr><th>Option</th><th>Surge</th><th>Slowdown</th><th>Overall</th></tr>${D[dom].slice(1).map(o => `<tr><td>${nice(o.opt)}</td><td>${chg(o.pay.HG)}</td><td>${chg(o.pay.SD)}</td><td>${chg(o.ev, "")}</td></tr>`).join("")}</table><div class="mut" style="font-size:12px;margin-top:6px">Points = illustrative margin contribution. Ranked on expected result minus the cost of being wrong.</div></details></div>`; }).join("")}</div>
+  <h2>Who does what next</h2><div class="card"><table><tr><th>Owner</th><th>Action</th><th>By</th></tr>${R.brief.next.map(n => `<tr><td><b>${n.who}</b></td><td>${n.what}</td><td>${n.due}</td></tr>`).join("")}</table></div>
+  <h2>Triggers that change our plan</h2><div class="grid g2">${R.tripwires.map(t => `<div class="card"><div><span class="tag" style="--c:${CV.watch}">IF</span> ${t.if}</div><div style="margin-top:8px"><span class="tag" style="--c:${CV.good}">THEN</span> ${t.then}</div></div>`).join("")}</div>`;
+};
+
+P.radar = () => {
+  const W = 560, cx = 280, cy = 280, layers = ["Upstream", "Core DC", "Downstream", "Enabling"], nm = { Upstream: "Chips & materials", "Core DC": "Data centres", Downstream: "AI demand & money", Enabling: "Power & grid" };
+  const scd = R.scored.filter(s => s.tier !== "Rejected"), rad = (p) => 40 + (1 - (p - 35) / 50) * 210;
+  let svg = `<svg viewBox="0 0 ${W} ${W}" style="width:100%;max-width:640px">`;
+  [["Act now", 62], ["Watch", 50], ["Background", 35]].forEach(([n, p]) => { svg += `<circle cx="${cx}" cy="${cy}" r="${rad(p)}" fill="none" stroke="#243040" stroke-dasharray="3 4"/><text x="${cx + 4}" y="${cy - rad(p) + 12}">${n}</text>`; });
+  layers.forEach((l, i) => { const a0 = i * Math.PI / 2 - Math.PI / 2, am = a0 + Math.PI / 4; svg += `<line x1="${cx}" y1="${cy}" x2="${cx + 260 * Math.cos(a0)}" y2="${cy + 260 * Math.sin(a0)}" stroke="#243040"/><text x="${cx + 235 * Math.cos(am) - 30}" y="${cy + 235 * Math.sin(am)}" style="fill:#b6c2d1;font-weight:600">${nm[l]}</text>`; });
+  layers.forEach((l, i) => { const xs = scd.filter(s => s.layer === l); xs.forEach((s, j) => { const a = i * Math.PI / 2 - Math.PI / 2 + (j + 1) / (xs.length + 1) * Math.PI / 2, r = rad(s.priority), x = cx + r * Math.cos(a), y = cy + r * Math.sin(a), sz = 5 + s.lead / 5;
+    svg += `<g onclick="pick('${s.id}')" style="cursor:pointer"><circle cx="${x}" cy="${y}" r="${sz}" fill="${s.pol > 0 ? "#2ecc8f" : "#ff4d57"}" fill-opacity=".8" stroke="${s.id === picked ? "#fff" : s.new ? "#ffc233" : "none"}" stroke-width="2.5"/><text x="${x + sz + 2}" y="${y + 3}" style="fill:#e6ebf1">${s.id}</text></g>`; }); });
+  svg += `</svg>`;
+  const top = scd.slice().sort((a, b) => b.priority - a.priority).slice(0, 8);
+  return `${intro("Signals", "Early clues about future demand. Closer to the centre = stronger signal. Green = good news, red = warning.")}
+  <div class="grid" style="grid-template-columns:3fr 2fr"><div class="card">${svg}<div class="mut" style="font-size:12.5px">Bigger dot = warns us earlier. Yellow ring = new this cycle.</div></div><div class="card"><h3>Why this signal matters</h3>${sigDetail(R.scored.find(s => s.id === picked))}</div></div>
+  <h2>Strongest signals</h2><div class="card"><table><tr><th>Signal</th><th>Type</th><th>Strength</th><th>Status</th></tr>${top.map(s => { const [d, dc] = SIGDIR(s); return `<tr class="click" onclick="pick('${s.id}')"><td><b>${E.shortName(s.id)}</b><div class="mut" style="font-size:12.5px">${s.region}</div></td><td class="${dc}">${d}</td><td><b>${s.priority}</b></td><td><span class="tag" style="--c:${s.tier === "Act" ? CV.risk : s.tier === "Watch" ? CV.watch : "var(--mut)"}">${E.PLAIN[s.tier]}</span></td></tr>`; }).join("")}</table></div>
+  <details class="card" style="margin-top:14px"><summary>Rejected signals (kept for transparency)</summary>${bullets(R.scored.filter(s => s.tier === "Rejected").map(s => `<b>${E.shortName(s.id)}</b>: only one unverified source, no confirmation, so it is ignored.`))}</details>`;
+};
+
+const SUPPLY = [
+  ["Large power transformers", "weeks", [70, 80, 95, 110, 120, 128, 135, 140], "risk", "Find second suppliers; plan deliveries around site power-on dates", "Delays projects, rarely cancels them"],
+  ["Medium-voltage switchgear", "weeks", [30, 32, 36, 40, 44, 46, 50, 52], "watch", "Add flexible capacity; assemble closer to customers", "Not enough capacity if growth surges"],
+  ["Copper price", "index", [100, 104, 110, 108, 118, 124, 129, 133], "watch", "Buy ahead for 30-50% of needs; index prices in contracts", "Squeezes margins on fixed-price deals"],
+  ["Power chips", "weeks", [26, 25, 24, 24, 25, 27, 28, 30], "watch", "Qualify a second source for key parts", "Competes with AI chip makers for capacity"],
+  ["Electrical steel", "index", [100, 101, 103, 105, 106, 108, 109, 111], "good", "No action; keep monitoring", "Low concern"],
+  ["Shipping costs", "index", [100, 96, 94, 95, 97, 99, 101, 100], "good", "No action", "Back to normal"],
+];
+P.supply = () => {
+  const lab = { risk: "High risk", watch: "Watch", good: "OK" };
+  const spark = (a, c) => { const mx = Math.max(...a), mn = Math.min(...a); return `<svg viewBox="0 0 120 34" style="width:130px;height:36px"><polyline fill="none" stroke="${c}" stroke-width="2.5" points="${a.map((v, i) => `${i * 17},${32 - (v - mn) / (mx - mn || 1) * 28}`).join(" ")}"/></svg>`; };
+  return `${intro("Supply risks", "Parts and materials that could slow ABB's deliveries or squeeze margins. Trend shows the last 8 quarters (illustrative).")}
+  <div class="grid g3">${SUPPLY.map(s => `<div class="card" style="border-top:3px solid ${CV[s[3]]}"><div class="row"><b>${s[0]}</b><span class="sp"></span><span class="tag" style="--c:${CV[s[3]]}">${lab[s[3]]}</span></div>
+  <div class="row" style="margin:6px 0"><span class="num">${s[2][7]}</span><span class="mut">${s[1]}</span><span class="sp"></span>${spark(s[2], CV[s[3]])}</div>
+  ${bullets([`<b>Impact:</b> ${s[5]}`, `<b>Response:</b> ${s[4]}`])}</div>`).join("")}</div>
+  <div class="card" style="margin-top:14px;border-left:4px solid ${CV.watch}"><b>Why it matters for the scenarios</b>${bullets(["Long transformer waits move sales from one quarter to a later one.", "If waits stay above 150 weeks, Regional Shift becomes more likely (about +5-8 points).", "That is why the plan includes second suppliers and extra stock."])}</div>`;
+};
+
+let srcF = "All";
+P.hub = () => {
+  const groups = ["All", ...new Set(E.SOURCES.map(s => s.group))];
+  const sig = (h) => R.scored.filter(s => s.horizon === h && s.tier !== "Rejected").sort((a, b) => b.priority - a.priority).slice(0, 6);
+  return `${intro("Data & sources", "The public data behind the signals, and how early each type of clue warns us.")}
+  <div class="grid g3">${[["leading", "Early warnings (12-36 months ahead)", "base"], ["coincident", "Happening now (0-12 months)", "watch"], ["lagging", "Confirmations (already visible)", "good"]].map(([h, l, c]) => `<div class="card" style="border-top:3px solid ${CV[c]}"><h3>${l}</h3>${bullets(sig(h).map(s => `<span class="${s.pol > 0 ? "good" : "risk"}">${s.pol > 0 ? "▲" : "▼"}</span> ${E.shortName(s.id)}`))}</div>`).join("")}</div>
+  <div class="row" style="margin:24px 0 8px"><h2 style="margin:0">Where the data comes from</h2><span class="sp"></span><select onchange="srcF=this.value;render()">${groups.map(g => `<option ${g === srcF ? "selected" : ""}>${g}</option>`).join("")}</select></div>
+  <div class="card"><table><tr><th>Source</th><th>What it tells us</th><th>Trust</th><th>Updates</th><th>Warns ahead by</th></tr>${E.SOURCES.filter(s => srcF === "All" || s.group === srcF).map(s => `<tr><td><b>${s.name}</b></td><td>${s.why}</td><td><span class="${s.rel >= 85 ? "good" : s.rel >= 60 ? "watch" : "risk"}">${s.rel >= 85 ? "High" : s.rel >= 60 ? "Medium" : "Low"}</span></td><td>${s.freq}</td><td>${s.lead} mo</td></tr>`).join("")}</table></div>
+  <details class="card" style="margin-top:14px"><summary>Latest news items processed</summary><table>${E.RAW_FEED.map(r => `<tr><td>${r.t}</td><td class="mut">${r.src}</td></tr>`).join("")}</table></details>`;
+};
+
+let demoState = 0, timer = null;
+P.demo = () => `${intro("Live demo: Nordic AI investment surge", "Watch eight AI agents turn new data into a recommendation.")}
+  <div class="row" style="margin-bottom:14px"><button class="primary" onclick="runDemo()">▶ Inject new data</button><button onclick="demoState=0;clearTimeout(timer);render()">Reset</button></div>
+  <div class="grid g2"><div class="card"><h3>1 · New data arrives</h3>${demoState >= 1 ? bullets(E.RAW_FEED.map(r => `${r.t} <span class="mut">(${r.src})</span>`)) : `<span class="mut">Waiting…</span>`}</div>
+  <div class="card"><h3>2 · Agents at work</h3><div class="log">${R.log.slice(0, Math.max(0, demoState - 1)).map(l => `<div><b>${l.agent}</b><br>${l.out}</div>`).join("") || `<span class="mut">Waiting…</span>`}</div></div></div>
+  ${demoState >= 9 ? `<div class="grid g2" style="margin-top:14px"><div class="card"><h3>3 · Result: how likely is each future?</h3>${probBars(R.post.p, R.pBefore)}</div>
+  <div class="card"><h3>4 · What it means for ABB</h3>${bullets([`Orders ${sgn(R.outlook.m18.growth)}% in 18 months`, `Nordics ${sgn(R.impact.regions.Nordics)}%, Middle East ${sgn(R.impact.regions["Middle East"])}%, USA ${sgn(R.impact.regions.USA)}%`, `Factory use about ${R.outlook.m18.util}%`])}<h3 style="margin-top:14px">5 · Recommended actions</h3>${bullets(R.brief.next.map(n => `<b>${n.who}:</b> ${n.what} (${n.due})`))}</div></div>
+  <p><button onclick="go('exec')">Open the executive summary →</button></p>` : ""}`;
+function runDemo() { clearTimeout(timer); demoState = 1; render(); const step = () => { demoState++; render(); if (demoState < 9) timer = setTimeout(step, 900); }; timer = setTimeout(step, 900); }
+
+/* ---------- custom data loading ---------- */
+function custMsg(t, bad) { const el = $("#custmsg"); el.textContent = t; el.style.color = bad ? "#ff8a80" : "#7be0a0"; }
+function onCustomFile(ev) {
+  const f = ev.target.files[0]; if (!f) return;
+  const rd = new FileReader();
+  rd.onload = () => {
+    let data; try { data = JSON.parse(rd.result); } catch (e) { return custMsg("Not valid JSON: " + e.message, true); }
+    const r = E.loadCustom(data);
+    if (!r.ok) return custMsg("Nothing loaded. Fix these and retry:\n- " + r.errors.slice(0, 8).join("\n- ") + (r.errors.length > 8 ? `\n(+${r.errors.length - 8} more)` : ""), true);
+    refreshAll(); custMsg(`Loaded ${f.name}: ${r.updated} signals updated, ${r.added} added, ${r.feed} news items. Open "Live demo" and press Inject new data.`);
+  };
+  rd.readAsText(f); ev.target.value = "";
+}
+function refreshAll() { clearTimeout(timer); demoState = 0; R = buildR(); render(); }
+function resetData() { E.resetCustom(); refreshAll(); custMsg("Back to the built-in demo data."); }
+function downloadTemplate() {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(E.customTemplate(), null, 2)], { type: "application/json" }));
+  a.download = "signal-tower-custom-data.json"; a.click(); URL.revokeObjectURL(a.href);
+}
+
+function render() { $("#page").innerHTML = (P[cur] || P.exec)(); }
+menu(); render();
+</script>
+</body>
+</html>
